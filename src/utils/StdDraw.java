@@ -2,30 +2,6 @@ package utils;
 
 //package stdDraw;
 // https://introcs.cs.princeton.edu/java/stdlib/StdDraw.java.html
-/******************************************************************************
- *  Compilation:  javac StdDraw.java
- *  Execution:    java StdDraw
- *  Dependencies: none
- *
- *
- *  Standard drawing library. This class provides a basic capability for
- *  creating drawings with your programs. It uses a simple graphics model that
- *  allows you to create drawings consisting of points, lines, and curves
- *  in a window on your computer and to save the drawings to a file.
- *
- *  Todo
- *  ----
- *    -  Add support for gradient fill, etc.
- *    -  Fix setCanvasSize() so that it can only be called once.
- *    -  On some systems, drawing a line (or other shape) that extends way
- *       beyond canvas (e.g., to infinity) dimensions does not get drawn.
- *
- *  Remarks
- *  -------
- *    -  don't use AffineTransform for rescaling since it inverts
- *       images and strings
- *
- ******************************************************************************/
 
 import algorithms.Graph_Algo;
 import algorithms.graph_algorithms;
@@ -62,509 +38,19 @@ import javax.imageio.ImageIO;
 
 import javax.swing.*;
 
-/**
- *  The {@code StdDraw} class provides a basic capability for
- *  creating drawings with your programs. It uses a simple graphics model that
- *  allows you to create drawings consisting of points, lines, squares, 
- *  circles, and other geometric shapes in a window on your computer and
- *  to save the drawings to a file. Standard drawing also includes
- *  facilities for text, color, pictures, and animation, along with
- *  user interaction via the keyboard and mouse.
- *  <p>
- *  <b>Getting started.</b>
- *  To use this class, you must have {@code StdDraw.class} in your
- *  Java classpath. If you used our autoinstaller, you should be all set.
- *  Otherwise, either download
- *  <a href = "https://introcs.cs.princeton.edu/java/code/stdlib.jar">stdlib.jar</a>
- *  and add to your Java classpath or download
- *  <a href = "https://introcs.cs.princeton.edu/java/stdlib/StdDraw.java">StdDraw.java</a>
- *  and put a copy in your working directory.
- *  <p>
- *  Now, type the following short program into your editor:
- *  <pre>
- *   public class TestStdDraw {
- *       public static void main(String[] args) {
- *           StdDraw.setPenRadius(0.05);
- *           StdDraw.setPenColor(StdDraw.BLUE);
- *           StdDraw.point(0.5, 0.5);
- *           StdDraw.setPenColor(StdDraw.MAGENTA);
- *           StdDraw.line(0.2, 0.2, 0.8, 0.2);
- *       }
- *   }
- *  </pre>
- *  If you compile and execute the program, you should see a window
- *  appear with a thick magenta line and a blue point.
- *  This program illustrates the two main types of methods in standard
- *  drawing—methods that draw geometric shapes and methods that
- *  control drawing parameters.
- *  The methods {@code StdDraw.line()} and {@code StdDraw.point()}
- *  draw lines and points; the methods {@code StdDraw.setPenRadius()}
- *  and {@code StdDraw.setPenColor()} control the line thickness and color.
- *  <p>
- *  <b>Points and lines.</b>
- *  You can draw points and line segments with the following methods:
- *  <ul>
- *  <li> {@link #point(double x, double y)}
- *  <li> {@link #line(double x1, double y1, double x2, double y2)}
- *  </ul>
- *  <p>
- *  The <em>x</em>- and <em>y</em>-coordinates must be in the drawing area
- *  (between 0 and 1 and by default) or the points and lines will not be visible.
- *  <p>
- *  <b>Squares, circles, rectangles, and ellipses.</b>
- *  You can draw squares, circles, rectangles, and ellipses using
- *  the following methods:
- *  <ul>
- *  <li> {@link #circle(double x, double y, double radius)}
- *  <li> {@link #ellipse(double x, double y, double semiMajorAxis, double semiMinorAxis)}
- *  <li> {@link #square(double x, double y, double radius)}
- *  <li> {@link #rectangle(double x, double y, double halfWidth, double halfHeight)}
- *  </ul>
- *  <p>
- *  All of these methods take as arguments the location and size of the shape.
- *  The location is always specified by the <em>x</em>- and <em>y</em>-coordinates
- *  of its <em>center</em>.
- *  The size of a circle is specified by its radius and the size of an ellipse is
- *  specified by the lengths of its semi-major and semi-minor axes.
- *  The size of a square or rectangle is specified by its half-width or half-height.
- *  The convention for drawing squares and rectangles is parallel to those for
- *  drawing circles and ellipses, but may be unexpected to the uninitiated.
- *  <p>
- *  The methods above trace outlines of the given shapes. The following methods
- *  draw filled versions:
- *  <ul>
- *  <li> {@link #filledCircle(double x, double y, double radius)}
- *  <li> {@link #filledEllipse(double x, double y, double semiMajorAxis, double semiMinorAxis)}
- *  <li> {@link #filledSquare(double x, double y, double radius)}
- *  <li> {@link #filledRectangle(double x, double y, double halfWidth, double halfHeight)}
- *  </ul>
- *  <p>
- *  <b>Circular arcs.</b>
- *  You can draw circular arcs with the following method:
- *  <ul>
- *  <li> {@link #arc(double x, double y, double radius, double angle1, double angle2)}
- *  </ul>
- *  <p>
- *  The arc is from the circle centered at (<em>x</em>, <em>y</em>) of the specified radius.
- *  The arc extends from angle1 to angle2. By convention, the angles are
- *  <em>polar</em> (counterclockwise angle from the <em>x</em>-axis)
- *  and represented in degrees. For example, {@code StdDraw.arc(0.0, 0.0, 1.0, 0, 90)}
- *  draws the arc of the unit circle from 3 o'clock (0 degrees) to 12 o'clock (90 degrees).
- *  <p>
- *  <b>Polygons.</b>
- *  You can draw polygons with the following methods:
- *  <ul>
- *  <li> {@link #polygon(double[] x, double[] y)}
- *  <li> {@link #filledPolygon(double[] x, double[] y)}
- *  </ul>
- *  <p>
- *  The points in the polygon are ({@code x[i]}, {@code y[i]}).
- *  For example, the following code fragment draws a filled diamond
- *  with vertices (0.1, 0.2), (0.2, 0.3), (0.3, 0.2), and (0.2, 0.1):
- *  <pre>
- *   double[] x = { 0.1, 0.2, 0.3, 0.2 };
- *   double[] y = { 0.2, 0.3, 0.2, 0.1 };
- *   StdDraw.filledPolygon(x, y);
- *  </pre>
- *  <p>
- *  <b>Pen size.</b>
- *  The pen is circular, so that when you set the pen radius to <em>r</em>
- *  and draw a point, you get a circle of radius <em>r</em>. Also, lines are
- *  of thickness 2<em>r</em> and have rounded ends. The default pen radius
- *  is 0.005 and is not affected by coordinate scaling. This default pen
- *  radius is about 1/200 the width of the default canvas, so that if
- *  you draw 100 points equally spaced along a horizontal or vertical line,
- *  you will be able to see individual circles, but if you draw 200 such
- *  points, the result will look like a line.
- *  <ul>
- *  <li> {@link #setPenRadius(double radius)}
- *  </ul>
- *  <p>
- *  For example, {@code StdDraw.setPenRadius(0.025)} makes
- *  the thickness of the lines and the size of the points to be five times
- *  the 0.005 default.
- *  To draw points with the minimum possible radius (one pixel on typical
- *  displays), set the pen radius to 0.0.
- *  <p>
- *  <b>Pen color.</b>
- *  All geometric shapes (such as points, lines, and circles) are drawn using
- *  the current pen color. By default, it is black.
- *  You can change the pen color with the following methods:
- *  <ul>
- *  <li> {@link #setPenColor(int red, int green, int blue)}
- *  <li> {@link #setPenColor(Color color)}
- *  </ul>
- *  <p>
- *  The first method allows you to specify colors using the RGB color system.
- *  This <a href = "http://johndyer.name/lab/colorpicker/">color picker</a>
- *  is a convenient way to find a desired color.
- *  The second method allows you to specify colors using the
- *  {@link Color} data type that is discussed in Chapter 3. Until then,
- *  you can use this method with one of these predefined colors in standard drawing:
- *  {@link #BLACK}, {@link #BLUE}, {@link #CYAN}, {@link #DARK_GRAY}, {@link #GRAY},
- *  {@link #GREEN}, {@link #LIGHT_GRAY}, {@link #MAGENTA}, {@link #ORANGE},
- *  {@link #PINK}, {@link #RED}, {@link #WHITE}, {@link #YELLOW},
- *  {@link #BOOK_BLUE}, {@link #BOOK_LIGHT_BLUE}, {@link #BOOK_RED}, and
- *  {@link #PRINCETON_ORANGE}.
- *  For example, {@code StdDraw.setPenColor(StdDraw.MAGENTA)} sets the
- *  pen color to magenta.
- *  <p>
- *  <b>Canvas size.</b>
- *  By default, all drawing takes places in a 512-by-512 canvas.
- *  The canvas does not include the window title or window border.
- *  You can change the size of the canvas with the following method:
- *  <ul>
- *  <li> {@link #setCanvasSize(int width, int height)}
- *  </ul>
- *  <p>
- *  This sets the canvas size to be <em>width</em>-by-<em>height</em> pixels.
- *  It also erases the current drawing and resets the coordinate system,
- *  pen radius, pen color, and font back to their default values.
- *  Ordinarly, this method is called once, at the very beginning of a program.
- *  For example, {@code StdDraw.setCanvasSize(800, 800)}
- *  sets the canvas size to be 800-by-800 pixels.
- *  <p>
- *  <b>Canvas scale and coordinate system.</b>
- *  By default, all drawing takes places in the unit square, with (0, 0) at
- *  lower left and (1, 1) at upper right. You can change the default
- *  coordinate system with the following methods:
- *  <ul>
- *  <li> {@link #setXscale(double xmin, double xmax)}
- *  <li> {@link #setYscale(double ymin, double ymax)}
- *  <li> {@link #setScale(double min, double max)}
- *  </ul>
- *  <p>
- *  The arguments are the coordinates of the minimum and maximum 
- *  <em>x</em>- or <em>y</em>-coordinates that will appear in the canvas.
- *  For example, if you  wish to use the default coordinate system but
- *  leave a small margin, you can call {@code StdDraw.setScale(-.05, 1.05)}.
- *  <p>
- *  These methods change the coordinate system for subsequent drawing
- *  commands; they do not affect previous drawings.
- *  These methods do not change the canvas size; so, if the <em>x</em>-
- *  and <em>y</em>-scales are different, squares will become rectangles
- *  and circles will become ellipsoidal.
- *  <p>
- *  <b>Text.</b>
- *  You can use the following methods to annotate your drawings with text:
- *  <ul>
- *  <li> {@link #text(double x, double y, String text)}
- *  <li> {@link #text(double x, double y, String text, double degrees)}
- *  <li> {@link #textLeft(double x, double y, String text)}
- *  <li> {@link #textRight(double x, double y, String text)}
- *  </ul>
- *  <p>
- *  The first two methods write the specified text in the current font,
- *  centered at (<em>x</em>, <em>y</em>).
- *  The second method allows you to rotate the text.
- *  The last two methods either left- or right-align the text at (<em>x</em>, <em>y</em>).
- *  <p>
- *  The default font is a Sans Serif font with point size 16.
- *  You can use the following method to change the font:
- *  <ul>
- *  <li> {@link #setFont(Font font)}
- *  </ul>
- *  <p>
- *  You use the {@link Font} data type to specify the font. This allows you to
- *  choose the face, size, and style of the font. For example, the following
- *  code fragment sets the font to Arial Bold, 60 point.
- *  <pre>
- *   Font font = new Font("Arial", Font.BOLD, 60);
- *   StdDraw.setFont(font);
- *   StdDraw.text(0.5, 0.5, "Hello, World");
- *  </pre>
- *  <p>
- *  <b>Images.</b>
- *  You can use the following methods to add images to your drawings:
- *  <ul>
- *  <li> {@link #picture(double x, double y, String filename)}
- *  <li> {@link #picture(double x, double y, String filename, double degrees)}
- *  <li> {@link #picture(double x, double y, String filename, double scaledWidth, double scaledHeight)}
- *  <li> {@link #picture(double x, double y, String filename, double scaledWidth, double scaledHeight, double degrees)}
- *  </ul>
- *  <p>
- *  These methods draw the specified image, centered at (<em>x</em>, <em>y</em>).
- *  The supported image formats are JPEG, PNG, and GIF.
- *  The image will display at its native size, independent of the coordinate system.
- *  Optionally, you can rotate the image a specified number of degrees counterclockwise
- *  or rescale it to fit snugly inside a width-by-height bounding box.
- *  <p>
- *  <b>Saving to a file.</b>
- *  You save your image to a file using the <em>File → Save</em> menu option.
- *  You can also save a file programatically using the following method:
- *  <ul>
- *  <li> {@link #save(String filename)}
- *  </ul>
- *  <p>
- *  The supported image formats are JPEG and PNG. The filename must have either the
- *  extension .jpg or .png.
- *  We recommend using PNG for drawing that consist solely of geometric shapes and JPEG 
- *  for drawings that contains pictures.
- *  <p>
- *  <b>Clearing the canvas.</b>
- *  To clear the entire drawing canvas, you can use the following methods:
- *  <ul>
- *  <li> {@link #clear()}
- *  <li> {@link #clear(Color color)}
- *  </ul>
- *  <p>
- *  The first method clears the canvas to white; the second method
- *  allows you to specify a color of your choice. For example,
- *  {@code StdDraw.clear(StdDraw.LIGHT_GRAY)} clears the canvas to a shade
- *  of gray.
- *  <p>
- *  <b>Computer animations and double buffering.</b>
- *  Double buffering is one of the most powerful features of standard drawing,
- *  enabling computer animations.
- *  The following methods control the way in which objects are drawn:
- *  <ul>
- *  <li> {@link #enableDoubleBuffering()}
- *  <li> {@link #disableDoubleBuffering()}
- *  <li> {@link #show()}
- *  <li> {@link #pause(int t)}
- *  </ul>
- *  <p>
- *  By default, double buffering is disabled, which means that as soon as you
- *  call a drawing
- *  method—such as {@code point()} or {@code line()}—the
- *  results appear on the screen.
- *  <p>
- *  When double buffering is enabled by calling {@link #enableDoubleBuffering()},
- *  all drawing takes place on the <em>offscreen canvas</em>. The offscreen canvas
- *  is not displayed. Only when you call
- *  {@link #show()} does your drawing get copied from the offscreen canvas to
- *  the onscreen canvas, where it is displayed in the standard drawing window. You 
- *  can think of double buffering as collecting all of the lines, points, shapes,
- *  and text that you tell it to draw, and then drawing them all
- *  <em>simultaneously</em>, upon request.
- *  <p>
- *  The most important use of double buffering is to produce computer
- *  animations, creating the illusion of motion by rapidly
- *  displaying static drawings. To produce an animation, repeat
- *  the following four steps:
- *  <ul>
- *  <li> Clear the offscreen canvas.
- *  <li> Draw objects on the offscreen canvas.
- *  <li> Copy the offscreen canvas to the onscreen canvas.
- *  <li> Wait for a short while.
- *  </ul>
- *  <p>
- *  The {@link #clear()}, {@link #show()}, and {@link #pause(int t)} methods
- *  support the first, third, and fourth of these steps, respectively.
- *  <p>
- *  For example, this code fragment animates two balls moving in a circle.
- *  <pre>
- *   StdDraw.setScale(-2, +2);
- *   StdDraw.enableDoubleBuffering();
- *
- *   for (double t = 0.0; true; t += 0.02) {
- *       double x = Math.sin(t);
- *       double y = Math.cos(t);
- *       StdDraw.clear();
- *       StdDraw.filledCircle(x, y, 0.05);
- *       StdDraw.filledCircle(-x, -y, 0.05);
- *       StdDraw.show();
- *       StdDraw.pause(20);
- *   }
- *  </pre>
- *  <p>
- *  <b>Keyboard and mouse inputs.</b>
- *  Standard drawing has very basic support for keyboard and mouse input.
- *  It is much less powerful than most user interface libraries provide, but also much simpler.
- *  You can use the following methods to intercept mouse events:
- *  <ul>
- *  <li> {@link #isMousePressed()}
- *  <li> {@link #mouseX()}
- *  <li> {@link #mouseY()}
- *  </ul>
- *  <p>
- *  The first method tells you whether a mouse button is currently being pressed.
- *  The last two methods tells you the <em>x</em>- and <em>y</em>-coordinates of the mouse's
- *  current position, using the same coordinate system as the canvas (the unit square, by default).
- *  You should use these methods in an animation loop that waits a short while before trying
- *  to poll the mouse for its current state.
- *  You can use the following methods to intercept keyboard events:
- *  <ul>
- *  <li> {@link #hasNextKeyTyped()}
- *  <li> {@link #nextKeyTyped()}
- *  <li> {@link #isKeyPressed(int keycode)}
- *  </ul>
- *  <p>
- *  If the user types lots of keys, they will be saved in a list until you process them.
- *  The first method tells you whether the user has typed a key (that your program has
- *  not yet processed).
- *  The second method returns the next key that the user typed (that your program has
- *  not yet processed) and removes it from the list of saved keystrokes.
- *  The third method tells you whether a key is currently being pressed.
- *  <p>
- *  <b>Accessing control parameters.</b>
- *  You can use the following methods to access the current pen color, pen radius,
- *  and font:
- *  <ul>
- *  <li> {@link #getPenColor()}
- *  <li> {@link #getPenRadius()}
- *  <li> {@link #getFont()}
- *  </ul>
- *  <p>
- *  These methods are useful when you want to temporarily change a
- *  control parameter and reset it back to its original value.
- *  <p>
- *  <b>Corner cases.</b>
- *  To avoid clutter, the API doesn't explicitly refer to arguments that are
- *  null, infinity, or NaN.
- *  <ul>
- *  <li> Any method that is passed a {@code null} argument will throw an
- *       {@link IllegalArgumentException}.
- *  <li> Except as noted in the APIs, drawing an object outside (or partly outside)
- *       the canvas is permitted—however, only the part of the object that
- *       appears inside the canvas will be visible.
- *  <li> Except as noted in the APIs, all methods accept {@link Double#NaN},
- *       {@link Double#POSITIVE_INFINITY}, and {@link Double#NEGATIVE_INFINITY}
- *       as arugments. An object drawn with an <em>x</em>- or <em>y</em>-coordinate
- *       that is NaN will behave as if it is outside the canvas, and will not be visible.
- *  <li> Due to floating-point issues, an object drawn with an <em>x</em>- or
- *       <em>y</em>-coordinate that is way outside the canvas (such as the line segment
- *       from (0.5, –&infin;) to (0.5, &infin;) may not be visible even in the
- *       part of the canvas where it should be.
- *  </ul>
- *  <p>
- *  <b>Performance tricks.</b>
- *  Standard drawing is capable of drawing large amounts of data.
- *  Here are a few tricks and tips:
- *  <ul>
- *  <li> Use <em>double buffering</em> for static drawing with a large
- *       number of objects.
- *       That is, call {@link #enableDoubleBuffering()} before
- *       the sequence of drawing commands and call {@link #show()} afterwards.
- *       Incrementally displaying a complex drawing while it is being
- *       created can be intolerably inefficient on many computer systems.
- *  <li> When drawing computer animations, call {@code show()}
- *       only once per frame, not after drawing each individual object.
- *  <li> If you call {@code picture()} multiple times with the same filename,
- *       Java will cache the image, so you do not incur the cost of reading
- *       from a file each time.
- *  </ul>
- *  <p>
- *  <b>Known bugs and issues.</b>
- *  <ul>
- *  <li> The {@code picture()} methods may not draw the portion of the image that is
- *       inside the canvas if the center point (<em>x</em>, <em>y</em>) is outside the
- *       canvas.
- *       This bug appears only on some systems.
- *  <li> Some methods may not draw the portion of the geometric object that is inside the
- *       canvas if the <em>x</em>- or <em>y</em>-coordinates are infinite.
- *       This bug appears only on some systems.
- *  </ul>
- *  <p>
- *  <b>Reference.</b>
- *  For additional documentation,
- *  see <a href="https://introcs.cs.princeton.edu/15inout">Section 1.5</a> of
- *  <em>Computer Science: An Interdisciplinary Approach</em>
- *  by Robert Sedgewick and Kevin Wayne.
- *
- *  @author Robert Sedgewick
- *  @author Kevin Wayne
- */
 public final class StdDraw implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
 	public static DGraph gui_graph = new DGraph();
 	public static Graph_Algo gui_algo = new Graph_Algo();
+	public static ImageIcon icon = new ImageIcon("dachshund.png");
 	public static void setGraph(graph g){
 		gui_graph = (DGraph) g;
 		gui_algo.init(g);
 	}
-	public static double nodeRadius = 0;
-	/**
-	 *  The color black.
-	 */
-	public static final Color BLACK = Color.BLACK;
 
-	/**
-	 *  The color blue.
-	 */
-	public static final Color BLUE = Color.BLUE;
-
-	/**
-	 *  The color cyan.
-	 */
-	public static final Color CYAN = Color.CYAN;
-
-	/**
-	 *  The color dark gray.
-	 */
-	public static final Color DARK_GRAY = Color.DARK_GRAY;
-
-	/**
-	 *  The color gray.
-	 */
-	public static final Color GRAY = Color.GRAY;
-
-	/**
-	 *  The color green.
-	 */
-	public static final Color GREEN  = Color.GREEN;
-
-	/**
-	 *  The color light gray.
-	 */
-	public static final Color LIGHT_GRAY = Color.LIGHT_GRAY;
-
-	/**
-	 *  The color magenta.
-	 */
-	public static final Color MAGENTA = Color.MAGENTA;
-
-	/**
-	 *  The color orange.
-	 */
-	public static final Color ORANGE = Color.ORANGE;
-
-	/**
-	 *  The color pink.
-	 */
-	public static final Color PINK = Color.PINK;
-
-	/**
-	 *  The color red.
-	 */
-	public static final Color RED = Color.RED;
-
-	/**
-	 *  The color white.
-	 */
-	public static final Color WHITE = Color.WHITE;
-
-	/**
-	 *  The color yellow.
-	 */
-	public static final Color YELLOW = Color.YELLOW;
-
-	/**
-	 * Shade of blue used in <em>Introduction to Programming in Java</em>.
-	 * It is Pantone 300U. The RGB values are approximately (9, 90, 166).
-	 */
-	public static final Color BOOK_BLUE = new Color(9, 90, 166);
-
-	/**
-	 * Shade of light blue used in <em>Introduction to Programming in Java</em>.
-	 * The RGB values are approximately (103, 198, 243).
-	 */
-	public static final Color BOOK_LIGHT_BLUE = new Color(103, 198, 243);
-
-	/**
-	 * Shade of red used in <em>Algorithms, 4th edition</em>.
-	 * It is Pantone 1805U. The RGB values are approximately (150, 35, 31).
-	 */
-	public static final Color BOOK_RED = new Color(150, 35, 31);
-
-	/**
-	 * Shade of orange used in Princeton University's identity.
-	 * It is PMS 158. The RGB values are approximately (245, 128, 37).
-	 */
-	public static final Color PRINCETON_ORANGE = new Color(245, 128, 37);
 
 	// default colors
-	private static final Color DEFAULT_PEN_COLOR   = BLACK;
-	private static final Color DEFAULT_CLEAR_COLOR = WHITE;
+	private static final Color DEFAULT_PEN_COLOR   = Color.BLACK;
+	private static final Color DEFAULT_CLEAR_COLOR = Color.WHITE;
 
 	// current pen color
 	private static Color penColor;
@@ -626,9 +112,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	// singleton pattern: client can't instantiate
 	private StdDraw() { }
 
-
-	// static initializer
-	static {
+	static { // static initializer
 		init();
 	}
 
@@ -712,41 +196,38 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	public static JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu file = new JMenu("File");
-		JMenu algo = new JMenu("Algo");
+		JMenu algo = new JMenu("Game");
 		menuBar.add(file);
 		menuBar.add(algo);
 		JMenuItem fileItem1 = new JMenuItem(" Save to File (as photo) ");
 		JMenuItem fileItem2 = new JMenuItem(" Save to File (as binary file) ");
 		JMenuItem fileItem3 = new JMenuItem(" Open from file ");
-		JMenuItem algoItem1 = new JMenuItem(" Is graph connected? ");
-		JMenuItem algoItem2 = new JMenuItem(" Shortest path");
-		JMenuItem algoItem3 = new JMenuItem(" TSP ");
+		JMenuItem algoItem1 = new JMenuItem(" Add Robot ");
 
 		file.add(fileItem1);
 		file.add(fileItem2);
 		file.add(fileItem3);
 		algo.add(algoItem1);
-		algo.add(algoItem2);
-		algo.add(algoItem3);
+
 		fileItem1.addActionListener(std);
 		fileItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
 				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		fileItem2.addActionListener(std);
 		fileItem3.addActionListener(std);
 		algoItem1.addActionListener(std);
-		algoItem2.addActionListener(std);
-		algoItem3.addActionListener(std);
-
 		return menuBar;
 	}
 
 	/**
 	 * main graph drawing function
-	 * @param g THE GRAPH
 	 */
-	public static void drawGraph(graph g) {
+	public static void drawFrame() {
+		Object[] possibilities = {"1","2","3","4","5"};
+		String s = (String)JOptionPane.showInputDialog(frame,
+				"Choose a scenario", "Start game ",JOptionPane.PLAIN_MESSAGE, icon, possibilities,"1");
+		String fileName = "data/A"+s;
+		DGraph g = new DGraph(fileName);
 		setGraph(g);
-		                                         // set canvas size
 		double minx = Double.MAX_VALUE, maxx = -Double.MAX_VALUE, miny = Double.MAX_VALUE, maxy= -Double.MAX_VALUE;
 		Collection<node_data> nodes = g.getV();
 		for (node_data n:nodes) {
@@ -762,19 +243,18 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 		double xrange = Math.abs(minx-maxx)/10;
 		double yrange = Math.abs(miny-maxy)/10;
-		nodeRadius = xrange/5;
-		StdDraw.setCanvasSize(750, 750);
+		StdDraw.setCanvasSize(1500, 500);
 		StdDraw.setYscale(miny-yrange,maxy+yrange);                                  // set X line
 		StdDraw.setXscale(minx-xrange,maxx+xrange);                                  // set Y line
-		drawDefault();
+		drawGrapg();
+		picture(minx, miny,"dachshund.png");
+		picture(maxx, maxy,"doberman.png");
 	}
-	private static void drawDefault(){ //draw graph with default colors
-		drawWithColors(Color.yellow, Color.black);
-	}
-	private static void drawWithColors(Color nodeColor, Color edgeColor){ //draw graph with given colors
+
+	private static void drawGrapg(){
 		Collection<node_data> nodes = gui_graph.getV();
 		Iterator<node_data> it = nodes.iterator();
-		StdDraw.setPenColor(StdDraw.BLACK);
+		StdDraw.setPenColor(Color.BLACK);
 		StdDraw.setPenRadius(0.005);
 		Iterator<node_data> nit = gui_graph.getV().iterator();
 		while (nit.hasNext()){
@@ -783,28 +263,26 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 				Iterator<edge_data> eit = e.iterator();
 				while (eit.hasNext()) {
 					edge_data current = eit.next();
-					drawEdge(current, edgeColor);
+					drawEdge(current);
 				}
 			}
 		}
 		while (it.hasNext()){
 			node_data current = it.next();
-			drawNode(current, nodeColor);
+			drawNode(current);
 		}
 	}
-	public static void drawNode(node_data n, Color nodeColor){ //draw the node with all its components
+	public static void drawNode(node_data n){ //draw the node with all its components
 		StdDraw.setPenRadius(0.001);
-		StdDraw.setPenColor(nodeColor);
-		StdDraw.filledCircle(n.getLocation().x(), n.getLocation().y(), nodeRadius); //fill node
-		StdDraw.setPenColor(Color.black);
-		StdDraw.setPenRadius(0.001);
-		StdDraw.circle(n.getLocation().x(), n.getLocation().y(), nodeRadius); //draw borders
-		StdDraw.text(n.getLocation().x(), n.getLocation().y(), String.valueOf(n.getKey())); // draw nods key
+		StdDraw.setPenColor(Color.blue);
+		StdDraw.filledCircle(n.getLocation().x(), n.getLocation().y(), 0.0001);
+		StdDraw.text(n.getLocation().x(), n.getLocation().y()+0.0002, String.valueOf(n.getKey())); // draw nods key
 	}
-	private static void drawEdge(edge_data e, Color edgeColor){ //draw edge
+	private static void drawEdge(edge_data e){ //draw edge
 		NodeData s = (NodeData) gui_graph.getNode(e.getSrc());
 		NodeData d = (NodeData) gui_graph.getNode(e.getDest());
-		StdDraw.setPenColor(edgeColor);
+		StdDraw.setPenColor(Color.black);
+		StdDraw.setPenRadius(0.000001);
 		StdDraw.line(s.getLocation().x(), s.getLocation().y(), d.getLocation().x(), d.getLocation().y()); //draw line
 		StdDraw.setPenColor(Color.black);
 		double tempx = (s.getLocation().x()+d.getLocation().x())/2; //x for edge direction
@@ -813,143 +291,10 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		tempy = (tempy+d.getLocation().y())/2;
 		tempx = (tempx+d.getLocation().x())/2;
 		tempy = (tempy+d.getLocation().y())/2;
-		StdDraw.circle(tempx, tempy, nodeRadius/2); // draw direction circle
-		StdDraw.text(tempx, tempy+nodeRadius , String.format("%.1f", e.getWeight())); // print edge weight
-
-	}
-
-	/**
-	 * function to draw graph green/red after calling isConnected from Graph_Algo
-	 */
-	public static void isConnectedDraw(){
-		drawDefault();
-		graph_algorithms ga = new Graph_Algo();
-		ga.init(gui_graph);
-		if(ga.isConnected()){
-			drawWithColors(Color.green, Color.green);
-			JOptionPane.showMessageDialog(frame, "The graph is connected.");
-		}
-		else {
-			drawWithColors(Color.red, Color.red);
-			JOptionPane.showMessageDialog(frame,
-					"The graph is not connected.",
-					"Message",
-					JOptionPane.ERROR_MESSAGE);		}
-	}
-
-	/**
-	 * function to draw path on graph after calling shorthestPath from Graph_Algo
-	 */
-	public static void shortestDraw(){
-		drawDefault();
-		int s=0, d=0;
-		Collection<node_data> c = gui_graph.getV();
-		ArrayList<Integer> keys = new ArrayList<>();
-		for (node_data n:c) {
-			keys.add(n.getKey());
-		}
-		boolean srcOk = false;
-		boolean destOk = false;
-		while(!srcOk) {
-			String src = (String) JOptionPane.showInputDialog(frame, "Choose source node: ");
-			if (src ==null)
-				break;
-			System.out.println(src);
-			try {
-				s = Integer.parseInt(src);
-				if (keys.contains(s)) {
-						srcOk = true;
-						break;
-				}
-				else {
-					JOptionPane.showMessageDialog(frame, "There is no such node, Try again");
-					break;
-				}
-			}
-			catch (Exception e){
-				JOptionPane.showMessageDialog(frame,
-						"Input must be Integer.",
-						"Message",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		}
-		while(!destOk && srcOk) {
-			String dest = (String) JOptionPane.showInputDialog(frame, "Choose destination node: ");
-			if(dest == null)
-				break;
-			try {
-				d = Integer.parseInt(dest);
-				if (keys.contains(s)) {
-					destOk = true;
-					break;
-				}
-				else {
-					JOptionPane.showMessageDialog(frame, "There is no such node, Try again");
-					break;
-				}
-			}
-			catch (Exception e){
-				JOptionPane.showMessageDialog(frame,
-						"Input must be Integer.",
-						"Message",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		}
-		double dist = gui_algo.shortestPathDist(s,d);
-		List<node_data> list = gui_algo.shortestPath(s,d);
-		for (node_data n:list) {
-			drawNode(n, Color.blue);
-		}
-		JOptionPane.showMessageDialog(frame,
-				"The distanse is "+String.valueOf(dist));
-	}
-
-	/**
-	 * function to draw path on graph after calling TSP from Graph_Algo
-	 */
-	public static void tspDraw(){
-		drawDefault();
-		Collection<node_data> c = gui_graph.getV();
-		ArrayList<Integer> keys = new ArrayList<>();
-		for (node_data n:c) {
-			keys.add(n.getKey());
-		}
-		LinkedList<Integer> userList = new LinkedList<>();
-		int key = -2;
-		while (true){
-			String s = (String) JOptionPane.showInputDialog(frame, "Enter node number: (to finish, press cancel)");
-			if (s == null)
-				break;
-			try {
-				key = Integer.parseInt(s);
-				if (key == -1)
-					break;
-				else if (keys.contains(key)) {
-					userList.add(key);
-				}
-				else {
-					JOptionPane.showMessageDialog(frame, "There is no such node, Try again");
-				}
-			}
-			catch (Exception e){
-				JOptionPane.showMessageDialog(frame,
-						"Input must be Integer.",
-						"Message",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		}
-
-		graph_algorithms ga = new Graph_Algo();
-		ga.init(gui_graph);
-		LinkedList<node_data> list = (LinkedList<node_data>) ga.TSP(userList);
-		System.out.println(list);
-		int counter =1;
-		for (node_data n:list) {
-			drawNode(n, Color.blue);
-			setPenColor(RED);
-			StdDraw.text(n.getLocation().x(), n.getLocation().y()+nodeRadius*1.5, String.valueOf(counter));
-			counter++;
-		}
+		StdDraw.setPenColor(Color.yellow);
+		StdDraw.filledCircle(tempx,tempy, 0.00008);
+		setPenColor(Color.BLACK);
+		StdDraw.text(tempx, tempy-0.0002 , String.format("%.1f", e.getWeight())); // print edge weight
 	}
 
 
@@ -1265,218 +610,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	}
 
 
-	/**
-	 * Draws an ellipse with the specified semimajor and semiminor axes,
-	 * centered at (<em>x</em>, <em>y</em>).
-	 *
-	 * @param  x the <em>x</em>-coordinate of the center of the ellipse
-	 * @param  y the <em>y</em>-coordinate of the center of the ellipse
-	 * @param  semiMajorAxis is the semimajor axis of the ellipse
-	 * @param  semiMinorAxis is the semiminor axis of the ellipse
-	 * @throws IllegalArgumentException if either {@code semiMajorAxis}
-	 *         or {@code semiMinorAxis} is negative
-	 */
-	public static void ellipse(double x, double y, double semiMajorAxis, double semiMinorAxis) {
-		if (!(semiMajorAxis >= 0)) throw new IllegalArgumentException("ellipse semimajor axis must be nonnegative");
-		if (!(semiMinorAxis >= 0)) throw new IllegalArgumentException("ellipse semiminor axis must be nonnegative");
-		double xs = scaleX(x);
-		double ys = scaleY(y);
-		double ws = factorX(2*semiMajorAxis);
-		double hs = factorY(2*semiMinorAxis);
-		if (ws <= 1 && hs <= 1) pixel(x, y);
-		else offscreen.draw(new Ellipse2D.Double(xs - ws/2, ys - hs/2, ws, hs));
-		draw();
-	}
-
-	/**
-	 * Draws an ellipse with the specified semimajor and semiminor axes,
-	 * centered at (<em>x</em>, <em>y</em>).
-	 *
-	 * @param  x the <em>x</em>-coordinate of the center of the ellipse
-	 * @param  y the <em>y</em>-coordinate of the center of the ellipse
-	 * @param  semiMajorAxis is the semimajor axis of the ellipse
-	 * @param  semiMinorAxis is the semiminor axis of the ellipse
-	 * @throws IllegalArgumentException if either {@code semiMajorAxis}
-	 *         or {@code semiMinorAxis} is negative
-	 */
-	public static void filledEllipse(double x, double y, double semiMajorAxis, double semiMinorAxis) {
-		if (!(semiMajorAxis >= 0)) throw new IllegalArgumentException("ellipse semimajor axis must be nonnegative");
-		if (!(semiMinorAxis >= 0)) throw new IllegalArgumentException("ellipse semiminor axis must be nonnegative");
-		double xs = scaleX(x);
-		double ys = scaleY(y);
-		double ws = factorX(2*semiMajorAxis);
-		double hs = factorY(2*semiMinorAxis);
-		if (ws <= 1 && hs <= 1) pixel(x, y);
-		else offscreen.fill(new Ellipse2D.Double(xs - ws/2, ys - hs/2, ws, hs));
-		draw();
-	}
-
-
-	/**
-	 * Draws a circular arc of the specified radius,
-	 * centered at (<em>x</em>, <em>y</em>), from angle1 to angle2 (in degrees).
-	 *
-	 * @param  x the <em>x</em>-coordinate of the center of the circle
-	 * @param  y the <em>y</em>-coordinate of the center of the circle
-	 * @param  radius the radius of the circle
-	 * @param  angle1 the starting angle. 0 would mean an arc beginning at 3 o'clock.
-	 * @param  angle2 the angle at the end of the arc. For example, if
-	 *         you want a 90 degree arc, then angle2 should be angle1 + 90.
-	 * @throws IllegalArgumentException if {@code radius} is negative
-	 */
-	public static void arc(double x, double y, double radius, double angle1, double angle2) {
-		if (radius < 0) throw new IllegalArgumentException("arc radius must be nonnegative");
-		while (angle2 < angle1) angle2 += 360;
-		double xs = scaleX(x);
-		double ys = scaleY(y);
-		double ws = factorX(2*radius);
-		double hs = factorY(2*radius);
-		if (ws <= 1 && hs <= 1) pixel(x, y);
-		else offscreen.draw(new Arc2D.Double(xs - ws/2, ys - hs/2, ws, hs, angle1, angle2 - angle1, Arc2D.OPEN));
-		draw();
-	}
-
-	/**
-	 * Draws a square of side length 2r, centered at (<em>x</em>, <em>y</em>).
-	 *
-	 * @param  x the <em>x</em>-coordinate of the center of the square
-	 * @param  y the <em>y</em>-coordinate of the center of the square
-	 * @param  halfLength one half the length of any side of the square
-	 * @throws IllegalArgumentException if {@code halfLength} is negative
-	 */
-	public static void square(double x, double y, double halfLength) {
-		if (!(halfLength >= 0)) throw new IllegalArgumentException("half length must be nonnegative");
-		double xs = scaleX(x);
-		double ys = scaleY(y);
-		double ws = factorX(2*halfLength);
-		double hs = factorY(2*halfLength);
-		if (ws <= 1 && hs <= 1) pixel(x, y);
-		else offscreen.draw(new Rectangle2D.Double(xs - ws/2, ys - hs/2, ws, hs));
-		draw();
-	}
-
-	/**
-	 * Draws a filled square of the specified size, centered at (<em>x</em>, <em>y</em>).
-	 *
-	 * @param  x the <em>x</em>-coordinate of the center of the square
-	 * @param  y the <em>y</em>-coordinate of the center of the square
-	 * @param  halfLength one half the length of any side of the square
-	 * @throws IllegalArgumentException if {@code halfLength} is negative
-	 */
-	public static void filledSquare(double x, double y, double halfLength) {
-		if (!(halfLength >= 0)) throw new IllegalArgumentException("half length must be nonnegative");
-		double xs = scaleX(x);
-		double ys = scaleY(y);
-		double ws = factorX(2*halfLength);
-		double hs = factorY(2*halfLength);
-		if (ws <= 1 && hs <= 1) pixel(x, y);
-		else offscreen.fill(new Rectangle2D.Double(xs - ws/2, ys - hs/2, ws, hs));
-		draw();
-	}
-
-
-	/**
-	 * Draws a rectangle of the specified size, centered at (<em>x</em>, <em>y</em>).
-	 *
-	 * @param  x the <em>x</em>-coordinate of the center of the rectangle
-	 * @param  y the <em>y</em>-coordinate of the center of the rectangle
-	 * @param  halfWidth one half the width of the rectangle
-	 * @param  halfHeight one half the height of the rectangle
-	 * @throws IllegalArgumentException if either {@code halfWidth} or {@code halfHeight} is negative
-	 */
-	public static void rectangle(double x, double y, double halfWidth, double halfHeight) {
-		if (!(halfWidth  >= 0)) throw new IllegalArgumentException("half width must be nonnegative");
-		if (!(halfHeight >= 0)) throw new IllegalArgumentException("half height must be nonnegative");
-		double xs = scaleX(x);
-		double ys = scaleY(y);
-		double ws = factorX(2*halfWidth);
-		double hs = factorY(2*halfHeight);
-		if (ws <= 1 && hs <= 1) pixel(x, y);
-		else offscreen.draw(new Rectangle2D.Double(xs - ws/2, ys - hs/2, ws, hs));
-		draw();
-	}
-
-	/**
-	 * Draws a filled rectangle of the specified size, centered at (<em>x</em>, <em>y</em>).
-	 *
-	 * @param  x the <em>x</em>-coordinate of the center of the rectangle
-	 * @param  y the <em>y</em>-coordinate of the center of the rectangle
-	 * @param  halfWidth one half the width of the rectangle
-	 * @param  halfHeight one half the height of the rectangle
-	 * @throws IllegalArgumentException if either {@code halfWidth} or {@code halfHeight} is negative
-	 */
-	public static void filledRectangle(double x, double y, double halfWidth, double halfHeight) {
-		if (!(halfWidth  >= 0)) throw new IllegalArgumentException("half width must be nonnegative");
-		if (!(halfHeight >= 0)) throw new IllegalArgumentException("half height must be nonnegative");
-		double xs = scaleX(x);
-		double ys = scaleY(y);
-		double ws = factorX(2*halfWidth);
-		double hs = factorY(2*halfHeight);
-		if (ws <= 1 && hs <= 1) pixel(x, y);
-		else offscreen.fill(new Rectangle2D.Double(xs - ws/2, ys - hs/2, ws, hs));
-		draw();
-	}
-
-
-	/**
-	 * Draws a polygon with the vertices 
-	 * (<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>),
-	 * (<em>x</em><sub>1</sub>, <em>y</em><sub>1</sub>), ...,
-	 * (<em>x</em><sub><em>n</em>–1</sub>, <em>y</em><sub><em>n</em>–1</sub>).
-	 *
-	 * @param  x an array of all the <em>x</em>-coordinates of the polygon
-	 * @param  y an array of all the <em>y</em>-coordinates of the polygon
-	 * @throws IllegalArgumentException unless {@code x[]} and {@code y[]}
-	 *         are of the same length
-	 */
-	public static void polygon(double[] x, double[] y) {
-		if (x == null) throw new IllegalArgumentException("x-coordinate array is null");
-		if (y == null) throw new IllegalArgumentException("y-coordinate array is null");
-		int n1 = x.length;
-		int n2 = y.length;
-		if (n1 != n2) throw new IllegalArgumentException("arrays must be of the same length");
-		int n = n1;
-		if (n == 0) return;
-
-		GeneralPath path = new GeneralPath();
-		path.moveTo((float) scaleX(x[0]), (float) scaleY(y[0]));
-		for (int i = 0; i < n; i++)
-			path.lineTo((float) scaleX(x[i]), (float) scaleY(y[i]));
-		path.closePath();
-		offscreen.draw(path);
-		draw();
-	}
-
-	/**
-	 * Draws a polygon with the vertices 
-	 * (<em>x</em><sub>0</sub>, <em>y</em><sub>0</sub>),
-	 * (<em>x</em><sub>1</sub>, <em>y</em><sub>1</sub>), ...,
-	 * (<em>x</em><sub><em>n</em>–1</sub>, <em>y</em><sub><em>n</em>–1</sub>).
-	 *
-	 * @param  x an array of all the <em>x</em>-coordinates of the polygon
-	 * @param  y an array of all the <em>y</em>-coordinates of the polygon
-	 * @throws IllegalArgumentException unless {@code x[]} and {@code y[]}
-	 *         are of the same length
-	 */
-	public static void filledPolygon(double[] x, double[] y) {
-		if (x == null) throw new IllegalArgumentException("x-coordinate array is null");
-		if (y == null) throw new IllegalArgumentException("y-coordinate array is null");
-		int n1 = x.length;
-		int n2 = y.length;
-		if (n1 != n2) throw new IllegalArgumentException("arrays must be of the same length");
-		int n = n1;
-		if (n == 0) return;
-
-		GeneralPath path = new GeneralPath();
-		path.moveTo((float) scaleX(x[0]), (float) scaleY(y[0]));
-		for (int i = 0; i < n; i++)
-			path.lineTo((float) scaleX(x[i]), (float) scaleY(y[i]));
-		path.closePath();
-		offscreen.fill(path);
-		draw();
-	}
-
-
 	/***************************************************************************
 	 *  Drawing images.
 	 ***************************************************************************/
@@ -1515,49 +648,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		return icon.getImage();
 	}
 
-	/***************************************************************************
-	 * [Summer 2016] Should we update to use ImageIO instead of ImageIcon()?
-	 *               Seems to have some issues loading images on some systems
-	 *               and slows things down on other systems.
-	 *               especially if you don't call ImageIO.setUseCache(false)
-	 *               One advantage is that it returns a BufferedImage.
-	 ***************************************************************************/
-	/*
-    private static BufferedImage getImage(String filename) {
-        if (filename == null) throw new IllegalArgumentException();
-
-        // from a file or URL
-        try {
-            URL url = new URL(filename);
-            BufferedImage image = ImageIO.read(url);
-            return image;
-        } 
-        catch (IOException e) {
-            // ignore
-        }
-
-        // in case file is inside a .jar (classpath relative to StdDraw)
-        try {
-            URL url = StdDraw.class.getResource(filename);
-            BufferedImage image = ImageIO.read(url);
-            return image;
-        } 
-        catch (IOException e) {
-            // ignore
-        }
-
-        // in case file is inside a .jar (classpath relative to root of jar)
-        try {
-            URL url = StdDraw.class.getResource("/" + filename);
-            BufferedImage image = ImageIO.read(url);
-            return image;
-        } 
-        catch (IOException e) {
-            // ignore
-        }
-        throw new IllegalArgumentException("image " + filename + " not found");
-    }
-	 */
 	/**
 	 * Draws the specified image centered at (<em>x</em>, <em>y</em>).
 	 * The supported image formats are JPEG, PNG, and GIF.
@@ -1903,20 +993,19 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 				String pathname = io("choose file to load", FileDialog.LOAD);
 				this.gui_algo.init(pathname);
 				this.gui_graph = (DGraph) this.gui_algo.copy();
-				drawDefault();
+				drawGrapg();
 				break;
 
 			}
 			case " Is graph connected? ": {
-				isConnectedDraw();
+
 				break;
 			}
 			case " Shortest path":{
-				shortestDraw();
 				break;
 			}
 			case " TSP ":{
-				tspDraw();
+
 			}
 		}
 	}
@@ -2142,36 +1231,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 	}
 
-
-
-
-	/**
-	 * Test client.
-	 *
-	 * @param args the command-line arguments
-	 */
-	public static void main(String[] args) {
-		StdDraw.square(0.2, 0.8, 0.1);
-		StdDraw.filledSquare(0.8, 0.8, 0.2);
-		StdDraw.circle(0.8, 0.2, 0.2);
-
-		StdDraw.setPenColor(StdDraw.BOOK_RED);
-		StdDraw.setPenRadius(0.02);
-		StdDraw.arc(0.8, 0.2, 0.1, 200, 45);
-
-		// draw a blue diamond
-		StdDraw.setPenRadius();
-		StdDraw.setPenColor(StdDraw.BOOK_BLUE);
-		double[] x = { 0.1, 0.2, 0.3, 0.2 };
-		double[] y = { 0.2, 0.3, 0.2, 0.1 };
-		StdDraw.filledPolygon(x, y);
-
-		// text
-		StdDraw.setPenColor(StdDraw.BLACK);
-		StdDraw.text(0.2, 0.5, "black text");
-		StdDraw.setPenColor(StdDraw.WHITE);
-		StdDraw.text(0.8, 0.8, "white text");
-	}
 
 }
 

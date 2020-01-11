@@ -1,11 +1,15 @@
 package dataStructure;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import utils.Point3D;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Scanner;
 
 /**
 * this class represents a Directed, weighted graph
@@ -23,7 +27,10 @@ public class DGraph implements graph, Serializable {
 		this.edges = new HashMap<>();
 	}
 
-
+	private void init() {
+		this.nodes = new HashMap();
+		this.edges = new HashMap();
+	}
 	public DGraph(graph g){ //copy constructor
 		Collection<node_data> n = g.getV();
 		Iterator<node_data> it = n.iterator();
@@ -50,6 +57,36 @@ public class DGraph implements graph, Serializable {
 		this.nodes.put(n.getKey(),n);
 
 	}
+	public DGraph(String file_name) {
+		try {
+			init();
+			Scanner scanner = new Scanner(new File(file_name));
+			String jsonString = scanner.useDelimiter("\\A").next();
+			scanner.close();
+			JSONObject graph = new JSONObject(jsonString);
+			JSONArray nodes = graph.getJSONArray("Nodes");
+			JSONArray edges = graph.getJSONArray("Edges");
+
+			int i;
+			int s;
+			for(i = 0; i < nodes.length(); ++i) {
+				s = nodes.getJSONObject(i).getInt("id");
+				String pos = nodes.getJSONObject(i).getString("pos");
+				Point3D p = new Point3D(pos);
+				this.addNode(new NodeData(s, p));
+			}
+
+			for(i = 0; i < edges.length(); ++i) {
+				s = edges.getJSONObject(i).getInt("src");
+				int d = edges.getJSONObject(i).getInt("dest");
+				double w = edges.getJSONObject(i).getDouble("w");
+				this.connect(s, d, w);
+			}
+		} catch (Exception var12) {
+			var12.printStackTrace();
+		}
+
+	}
 
 	/********** public methods ******************/
 	@Override
@@ -67,11 +104,14 @@ public class DGraph implements graph, Serializable {
 
 	@Override
 	public void addNode(node_data n) { // adds node to graph
-		if(!nodes.containsKey(n.getKey())) {
+		/*if(!nodes.containsKey(n.getKey())) {
 			nodes.put(n.getKey(), n);
 			modeCount++;
 
-		}
+		}*/
+		nodes.put(n.getKey(), n);
+		modeCount++;
+
 	}
 
 	public void connect(int src, int dest, double w) { //adds edge to graph
