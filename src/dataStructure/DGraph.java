@@ -57,12 +57,9 @@ public class DGraph implements graph, Serializable {
 		this.nodes.put(n.getKey(),n);
 
 	}
-	public DGraph(String file_name) {
+	public DGraph(String jsonString) {
 		try {
 			init();
-			Scanner scanner = new Scanner(new File(file_name));
-			String jsonString = scanner.useDelimiter("\\A").next();
-			scanner.close();
 			JSONObject graph = new JSONObject(jsonString);
 			JSONArray nodes = graph.getJSONArray("Nodes");
 			JSONArray edges = graph.getJSONArray("Edges");

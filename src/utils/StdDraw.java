@@ -3,12 +3,12 @@ package utils;
 //package stdDraw;
 // https://introcs.cs.princeton.edu/java/stdlib/StdDraw.java.html
 
+import Server.Game_Server;
+import Server.game_service;
 import algorithms.Graph_Algo;
 import algorithms.graph_algorithms;
 import dataStructure.*;
-
 import java.awt.*;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -16,26 +16,20 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-
 import java.awt.image.BufferedImage;
 import java.awt.image.DirectColorModel;
 import java.awt.image.WritableRaster;
-
 import java.io.*;
-
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import java.util.*;
 import java.util.List;
 import javax.imageio.ImageIO;
-
 import javax.swing.*;
 
 public final class StdDraw implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
@@ -186,47 +180,18 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // closes all windows
 		// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);      // closes only current window
 		frame.setTitle("Maze of Waze");
-		frame.setJMenuBar(createMenuBar());
+		//frame.setJMenuBar(createMenuBar());
 		frame.pack();
 		frame.requestFocusInWindow();
 		frame.setVisible(true);
 	}
 
-	// create the menu bar (changed to private)
-	public static JMenuBar createMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
-		JMenu file = new JMenu("File");
-		JMenu algo = new JMenu("Game");
-		menuBar.add(file);
-		menuBar.add(algo);
-		JMenuItem fileItem1 = new JMenuItem(" Save to File (as photo) ");
-		JMenuItem fileItem2 = new JMenuItem(" Save to File (as binary file) ");
-		JMenuItem fileItem3 = new JMenuItem(" Open from file ");
-		JMenuItem algoItem1 = new JMenuItem(" Add Robot ");
-
-		file.add(fileItem1);
-		file.add(fileItem2);
-		file.add(fileItem3);
-		algo.add(algoItem1);
-
-		fileItem1.addActionListener(std);
-		fileItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		fileItem2.addActionListener(std);
-		fileItem3.addActionListener(std);
-		algoItem1.addActionListener(std);
-		return menuBar;
-	}
 
 	/**
 	 * main graph drawing function
 	 */
-	public static void drawFrame() {
-		Object[] possibilities = {"1","2","3","4","5"};
-		String s = (String)JOptionPane.showInputDialog(frame,
-				"Choose a scenario", "Start game ",JOptionPane.PLAIN_MESSAGE, icon, possibilities,"1");
-		String fileName = "data/A"+s;
-		DGraph g = new DGraph(fileName);
+	public static void drawFrame(graph g) {
+
 		setGraph(g);
 		double minx = Double.MAX_VALUE, maxx = -Double.MAX_VALUE, miny = Double.MAX_VALUE, maxy= -Double.MAX_VALUE;
 		Collection<node_data> nodes = g.getV();
@@ -974,56 +939,9 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
-		switch (command){
-			case " Save to File (as photo) ":{
-				FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
-				chooser.setVisible(true);
-				String filename = chooser.getFile();
-				if (filename != null) {
-					StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
-				}
-				break;
-			}
-			case " Save to File (as binary file) ":{
-				String pathname = io("enter file name ", FileDialog.SAVE);
-				this.gui_algo.save(pathname);
-				break;
-			}
-			case " Open from file ":{
-				String pathname = io("choose file to load", FileDialog.LOAD);
-				this.gui_algo.init(pathname);
-				this.gui_graph = (DGraph) this.gui_algo.copy();
-				drawGrapg();
-				break;
 
-			}
-			case " Is graph connected? ": {
-
-				break;
-			}
-			case " Shortest path":{
-				break;
-			}
-			case " TSP ":{
-
-			}
-		}
 	}
-
-	//helper function to file io
-	private String io(String text, int mode) {
-		FileDialog fd = new FileDialog(frame, text, mode);
-		fd.setFile("*.txt");
-		fd.setFilenameFilter(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".txt");
-			}
-		});
-		fd.setVisible(true);
-		return fd.getDirectory() + fd.getFile();
-	}
-
+	
 	/***************************************************************************
 	 *  Mouse interactions.
 	 ***************************************************************************/
@@ -1074,7 +992,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 	}
 
-
 	/**
 	 * This method cannot be called directly.
 	 */
@@ -1083,25 +1000,19 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		// this body is intentionally left empty
 	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/*** This method cannot be called directly.*/
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// this body is intentionally left empty
 	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/*** This method cannot be called directly.*/
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// this body is intentionally left empty
 	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/*** This method cannot be called directly.*/
 	@Override
 	public void mousePressed(MouseEvent e) {
 		synchronized (mouseLock) {
@@ -1111,9 +1022,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/*** This method cannot be called directly.*/
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		synchronized (mouseLock) {
@@ -1121,9 +1030,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/*** This method cannot be called directly.*/
 	@Override
 	public void mouseDragged(MouseEvent e)  {
 		synchronized (mouseLock) {
@@ -1132,9 +1039,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/*** This method cannot be called directly.*/
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		synchronized (mouseLock) {
@@ -1201,9 +1106,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	}
 
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/*** This method cannot be called directly.*/
 	@Override
 	public void keyTyped(KeyEvent e) {
 		synchronized (keyLock) {
@@ -1211,9 +1114,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/*** This method cannot be called directly.*/
 	@Override
 	public void keyPressed(KeyEvent e) {
 		synchronized (keyLock) {
@@ -1221,19 +1122,13 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
+	/** This method cannot be called directly.**/
 	@Override
 	public void keyReleased(KeyEvent e) {
 		synchronized (keyLock) {
 			keysDown.remove(e.getKeyCode());
 		}
 	}
-
-
 }
-
-
 //Copyright © 2000–2017, Robert Sedgewick and Kevin Wayne. 
 //Last updated: Mon Aug 27 16:43:47 EDT 2018.
