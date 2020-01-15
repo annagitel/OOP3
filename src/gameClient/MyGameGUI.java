@@ -4,6 +4,8 @@ import Server.game_service;
 import dataStructure.DGraph;
 import utils.StdDraw;
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MyGameGUI {
@@ -18,19 +20,25 @@ public class MyGameGUI {
         int n = JOptionPane.showOptionDialog(frame, "choose game type",
                 "Start game", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 
-        game_service game = Game_Server.getServer(Integer.parseInt(s));
+        game_service game = Game_Server.getServer(Integer.parseInt(s));  /**the fucking game server**/
         String graph_string = game.getGraph();
         DGraph g = new DGraph(graph_string);
 
+        ArrayList<Fruit> fruits = new ArrayList<>();
+        HashMap<Integer, Robot> robots = new HashMap<>();
         List<String> robots_string = game.getRobots();
         List<String> fruit_string = game.getFruits();
-
-        StdDraw.drawFrame(g); //main call
-        if(n==0){
-
+        for (String fruit : fruit_string) {
+            System.out.println(fruit);
+            fruits.add(new Fruit(g, fruit));
         }
-        else{
 
+        for (String robot : robots_string) {
+            Robot r = new Robot(robot);
+            robots.put(robots.size()+1, r);
         }
+
+        StdDraw.drawFrame(g,robots, fruits); //main call
+
     }
 }

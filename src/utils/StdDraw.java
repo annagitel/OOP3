@@ -31,8 +31,10 @@ import java.util.*;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import gameClient.*;
+import gameClient.Robot;
 
-public final class StdDraw implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
+public class StdDraw implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
 	public static DGraph gui_graph = new DGraph();
 	public static Graph_Algo gui_algo = new Graph_Algo();
 	public static ImageIcon icon = new ImageIcon("dachshund.png");
@@ -160,20 +162,16 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		setPenRadius();
 		setFont();
 		clear();
-
 		// add antialiasing
 		RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		offscreen.addRenderingHints(hints);
-
 		// frame stuff
 		ImageIcon icon = new ImageIcon(onscreenImage);
 		JLabel draw = new JLabel(icon);
-
 		draw.addMouseListener(std);
 		draw.addMouseMotionListener(std);
-
 		frame.setContentPane(draw);
 		frame.addKeyListener(std);    // JLabel cannot get keyboard focus
 		frame.setResizable(false);
@@ -184,14 +182,17 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		frame.pack();
 		frame.requestFocusInWindow();
 		frame.setVisible(true);
+		JButton b=new JButton("Add Robot");
+		b.addActionListener(std);
+		b.setBounds(frame.getWidth()/2-50,10,95,30);
+		frame.add(b);
 	}
 
 
 	/**
 	 * main graph drawing function
 	 */
-	public static void drawFrame(graph g) {
-
+	public static void drawFrame(graph g, HashMap<Integer,Robot> robots, ArrayList<Fruit> fruits) {
 		setGraph(g);
 		double minx = Double.MAX_VALUE, maxx = -Double.MAX_VALUE, miny = Double.MAX_VALUE, maxy= -Double.MAX_VALUE;
 		Collection<node_data> nodes = g.getV();
@@ -211,9 +212,15 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		StdDraw.setCanvasSize(1500, 500);
 		StdDraw.setYscale(miny-yrange,maxy+yrange);                                  // set X line
 		StdDraw.setXscale(minx-xrange,maxx+xrange);                                  // set Y line
+
 		drawGrapg();
-		picture(minx, miny,"dachshund.png");
-		picture(maxx, maxy,"doberman.png");
+		/*for (Robot r: robots) {
+			drawRobot(r);
+		}*/
+		for (Fruit f: fruits) {
+			drawFruit(f);
+		}
+
 	}
 
 	private static void drawGrapg(){
@@ -262,6 +269,17 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		StdDraw.text(tempx, tempy-0.0002 , String.format("%.1f", e.getWeight())); // print edge weight
 	}
 
+	/*public static void drawRobot(Robot r){
+
+		picture(r., miny,"dachshund.png");
+	}*/
+
+	public static void drawFruit(Fruit f){
+		if(f.getType()<0)
+			picture(f.getLocation().x(), f.getLocation().y(),"bbq.png");
+		else
+			picture(f.getLocation().x(), f.getLocation().y(),"chicken.png");
+	}
 
 
 	/***************************************************************************
@@ -939,9 +957,22 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
+		if(command == "Add Robot"){
+			String src = (String) JOptionPane.showInputDialog(frame, "Choose source node: ");
+			if (src !=null){
+				Collection<node_data> c = gui_graph.getV();
+				ArrayList<Integer> keys = new ArrayList<>();
+				for (node_data n:c) {
+					keys.add(n.getKey());
+				}
+				if(keys.contains(Integer.parseInt(src))){
+
+				}
+			}
+		}
 
 	}
-	
+
 	/***************************************************************************
 	 *  Mouse interactions.
 	 ***************************************************************************/
